@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 /// 封装屏幕适配类
-///
-
 extension SizeExtension on num {
   ///[ScreenUtil.setWidth]
   num get w => ScreenUtil().setWidth(this);
@@ -51,17 +49,17 @@ class ScreenUtil {
 
   factory ScreenUtil() {
     assert(
-    _instance != null,
-    '\nEnsure to initialize ScreenUtil before accessing it.',
+      _instance != null,
+      '\nEnsure to initialize ScreenUtil before accessing it.',
     );
     return _instance;
   }
 
   static void init(
-      BuildContext context, {
-        Size designSize = defaultSize,
-        bool allowFontScaling = false,
-      }) {
+    BuildContext context, {
+    Size designSize = defaultSize,
+    bool allowFontScaling = false,
+  }) {
     _instance ??= ScreenUtil._();
     _instance
       ..uiSize = designSize
@@ -140,9 +138,9 @@ class ScreenUtil {
   num setSp(num fontSize, {bool allowFontScalingSelf}) =>
       allowFontScalingSelf == null
           ? (allowFontScaling
-          ? (fontSize * scaleText)
-          : ((fontSize * scaleText) / _textScaleFactor))
+              ? (fontSize * scaleText)
+              : ((fontSize * scaleText) / _textScaleFactor))
           : (allowFontScalingSelf
-          ? (fontSize * scaleText)
-          : ((fontSize * scaleText) / _textScaleFactor));
+              ? (fontSize * scaleText)
+              : ((fontSize * scaleText) / _textScaleFactor));
 }

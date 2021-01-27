@@ -4,10 +4,12 @@ import 'package:bookApp/util/ScreenUtil.dart';
 class BooksTabBar extends StatefulWidget {
   final List<String> tabs;
   final TabController controller;
+  final Function(int) onChange;
 
   BooksTabBar({
     this.tabs = const [],
     @required this.controller,
+    this.onChange,
   });
 
   @override
@@ -15,12 +17,14 @@ class BooksTabBar extends StatefulWidget {
 }
 
 class _BooksTabBarState extends State<BooksTabBar> {
+
   @override
   Widget build(BuildContext context) {
     return SliverPersistentHeader(
       delegate: _BooksTabBarDelegate(
         tabs: widget.tabs.map((tab) => Text(tab)).toList(),
         tabController: widget.controller,
+        onChange: widget.onChange
       ),
       pinned: true,
     );
@@ -30,11 +34,20 @@ class _BooksTabBarState extends State<BooksTabBar> {
 class _BooksTabBarDelegate extends SliverPersistentHeaderDelegate {
   List<Widget> tabs;
   TabController tabController;
+  final Function(int) onChange;
+
 
   _BooksTabBarDelegate({
     this.tabs = const [],
     this.tabController,
+    this.onChange
   });
+
+  _onChange(int index){
+    if(onChange != null){
+      onChange(index);
+    }
+  }
 
   @override
   Widget build(
@@ -44,19 +57,21 @@ class _BooksTabBarDelegate extends SliverPersistentHeaderDelegate {
       padding: EdgeInsets.only(top: 20.w),
       height: 80.w,
       child: TabBar(
+        indicatorColor: Colors.orange,
         indicatorPadding: EdgeInsets.zero,
         labelPadding: EdgeInsets.zero,
         indicatorWeight: 2.w,
         labelStyle: TextStyle(
           fontSize: 28.w,
         ),
-        labelColor: Colors.blue,
+        labelColor: Colors.orange,
         unselectedLabelStyle: TextStyle(
           fontSize: 24.w,
         ),
         unselectedLabelColor: Color(0xFF666666),
         tabs: tabs,
         controller: tabController,
+        onTap: _onChange,
       ),
     );
   }

@@ -4,10 +4,14 @@ import 'package:bookApp/util/ScreenUtil.dart';
 class SearchBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(String) onSearch;
   final FocusNode focusNode;
+  final Color color;
+  final Color inputColor;
 
   SearchBar({
     this.onSearch,
     this.focusNode,
+    this.color = Colors.blue,
+    this.inputColor = Colors.white,
   });
 
   @override
@@ -29,7 +33,7 @@ class _SearchBarState extends State<SearchBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
+      color: widget.color,
       child: Stack(
         children: [
           Positioned(
@@ -45,7 +49,7 @@ class _SearchBarState extends State<SearchBar> {
                       decoration: BoxDecoration(
                         // border: Border.all(color: Color(0xFF333333), width: 1.w),
                         borderRadius: BorderRadius.circular(50.w),
-                        color: Colors.white,
+                        color: widget.inputColor,
                       ),
                       child: Row(
                         children: [
