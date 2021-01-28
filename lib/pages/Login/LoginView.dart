@@ -1,3 +1,6 @@
+import 'package:bookApp/components/Toast.dart';
+import 'package:bookApp/network/ApiRequest.dart';
+import 'package:bookApp/util/CommonUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
 
@@ -12,14 +15,21 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController _accountController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  _onTapLogin() {
+  _onTapLogin() async {
     setState(() {
       _loadingLogin = true;
     });
-    Future.delayed(Duration(milliseconds: 2000)).then((value) {
-      setState(() {
-        _loadingLogin = false;
-      });
+    String account = _accountController.text;
+    String password = _passwordController.text;
+    if (account.isEmpty || password.isEmpty) {
+      CBToast.showErrorToast(context, "账号密码不能为空");
+      return;
+    }
+    try {
+      await ApiRequest().login(account, password);
+    } catch (err) {}
+    setState(() {
+      _loadingLogin = false;
     });
   }
 

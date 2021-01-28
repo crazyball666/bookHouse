@@ -1,6 +1,7 @@
 import 'package:bookApp/pages/Category/CategoryPage.dart';
 import 'package:bookApp/pages/Index/IndexPage.dart';
 import 'package:bookApp/pages/Login/LoginPage.dart';
+import 'package:bookApp/pages/MyRead/MyReadPage.dart';
 import 'package:bookApp/util/CommonUtil.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +17,10 @@ class AppRootPageState extends State<AppRootPage> {
   ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
 
   _onTapBottomNavigationItem(int index) {
-    if (index == 2 || index == 3) {
-      LoginPage.showLoginPage();
-      return;
-    }
+    // if (index == 2 || index == 3) {
+    //   LoginPage.showLoginPage();
+    //   return;
+    // }
     _pageController.jumpToPage(index);
     _currentIndex.value = index;
   }
@@ -48,7 +49,7 @@ class AppRootPageState extends State<AppRootPage> {
         children: [
           IndexPage(),
           CategoryPage(),
-          Container(),
+          MyReadPage(),
           Container(),
         ],
       ),

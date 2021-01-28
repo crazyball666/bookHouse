@@ -47,4 +47,8 @@ class Book {
       print("Create Book Error: $err");
     }
   }
+
+  Book.mock() {
+    name = "大傻逼";
+  }
 }

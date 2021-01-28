@@ -1,3 +1,5 @@
+import 'package:bookApp/components/Toast.dart';
+import 'package:bookApp/network/ApiRequest.dart';
 import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
 
@@ -13,14 +15,26 @@ class _RegisterViewState extends State<RegisterView> {
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
-  _onTapRegister() {
+  _onTapRegister() async {
     setState(() {
       _loading = true;
     });
-    Future.delayed(Duration(milliseconds: 2000)).then((value) {
-      setState(() {
-        _loading = false;
-      });
+    String account = _accountController.text;
+    String password = _passwordController.text;
+    String confirmPass = _confirmPasswordController.text;
+    if (account.isEmpty || password.isEmpty || confirmPass.isEmpty) {
+      CBToast.showErrorToast(context, "账号密码不能为空");
+      return;
+    }
+    if (password != confirmPass) {
+      CBToast.showErrorToast(context, "两次密码不一致");
+      return;
+    }
+    try {
+      await ApiRequest().register(account, password);
+    } catch (err) {}
+    setState(() {
+      _loading = false;
     });
   }
 
