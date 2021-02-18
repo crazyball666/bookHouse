@@ -40,8 +40,7 @@ class _BookCommentViewState extends State<BookCommentView> {
               borderRadius: BorderRadius.circular(80.w),
             ),
             clipBehavior: Clip.hardEdge,
-            child: CacheImageView(
-                url: "${CommonUtil.baseHost}${comment.userAvatar}"),
+            child: CacheImageView(url: "${comment.userAvatar}"),
           ),
           Expanded(
             child: Column(
@@ -99,10 +98,17 @@ class _BookCommentViewState extends State<BookCommentView> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
-      child: ListView.builder(
-        itemBuilder: _commentItemView,
-        itemCount: widget.commentList.length,
-      ),
+      child: widget.commentList.isEmpty
+          ? Center(
+              child: Text(
+                "暂无评价",
+                style: TextStyle(color: Color(0xff666666)),
+              ),
+            )
+          : ListView.builder(
+              itemBuilder: _commentItemView,
+              itemCount: widget.commentList.length,
+            ),
     );
   }
 }

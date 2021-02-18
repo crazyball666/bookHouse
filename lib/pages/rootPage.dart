@@ -1,10 +1,18 @@
+import 'dart:async';
+
+import 'package:bookApp/models/User.dart';
+import 'package:bookApp/network/ApiRequest.dart';
 import 'package:bookApp/pages/Category/CategoryPage.dart';
 import 'package:bookApp/pages/Index/IndexPage.dart';
 import 'package:bookApp/pages/Login/LoginPage.dart';
+import 'package:bookApp/pages/Mine/MinePage.dart';
 import 'package:bookApp/pages/MyRead/MyReadPage.dart';
+import 'package:bookApp/provider/UserProvider.dart';
 import 'package:bookApp/util/CommonUtil.dart';
+import 'package:bookApp/util/PreferencesUtil.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AppRootPage extends StatefulWidget {
   @override
@@ -12,25 +20,63 @@ class AppRootPage extends StatefulWidget {
 }
 
 class AppRootPageState extends State<AppRootPage> {
+  List<Widget> _pages = [
+    IndexPage(),
+    CategoryPage(),
+    MyReadPage(),
+    MinePage(),
+  ];
   PageController _pageController = PageController();
   bool _hasInit = false;
   ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
+  StreamSubscription _logoutSub;
 
-  _onTapBottomNavigationItem(int index) {
-    // if (index == 2 || index == 3) {
-    //   LoginPage.showLoginPage();
-    //   return;
-    // }
+  /// 切换tab
+  _onTapBottomNavigationItem(int index) async {
+    bool isLogin = Provider.of<UserProvider>(context, listen: false).isLogin;
+    if (!isLogin && (index == 2 || index == 3)) {
+      await LoginPage.showLoginPage();
+      if (!Provider.of<UserProvider>(context, listen: false).isLogin) {
+        return;
+      }
+    }
     _pageController.jumpToPage(index);
     _currentIndex.value = index;
+  }
+
+  /// 获取登录状态
+  _getLoginStatus() async {
+    try {
+      List<String> loginInfo = await PreferencesUtil.getLoginInfo();
+      if (loginInfo.length == 2 &&
+          loginInfo[0].isNotEmpty &&
+          loginInfo[1].isNotEmpty) {
+        User user = await ApiRequest().login(loginInfo[0], loginInfo[1]);
+        if (user.id != null && user.id > 0) {
+          Provider.of<UserProvider>(context, listen: false).loginUser(user);
+        }
+      }
+    } catch (err) {
+      print("初始化登录失败");
+    }
+  }
+
+  /// 登出监听
+  _onLogout(dynamic event) {
+    if (_currentIndex.value > 1) {
+      _pageController.jumpToPage(0);
+      _currentIndex.value = 0;
+    }
   }
 
   @override
   void initState() {
     super.initState();
     CommonUtil.rootContext = context;
-    Future.delayed(Duration()).then((_) {
+    _logoutSub = CommonUtil.logoutBroadcast.stream.listen(_onLogout);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ScreenUtil.init(context, designSize: Size(750, 1334));
+      await _getLoginStatus();
       setState(() {
         _hasInit = true;
       });
@@ -38,20 +84,23 @@ class AppRootPageState extends State<AppRootPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _logoutSub.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (!_hasInit) {
-      return Container();
+      return Container(
+        color: Colors.white,
+      );
     }
     return Scaffold(
       body: PageView(
         controller: _pageController,
         physics: NeverScrollableScrollPhysics(),
-        children: [
-          IndexPage(),
-          CategoryPage(),
-          MyReadPage(),
-          Container(),
-        ],
+        children: _pages,
       ),
       bottomNavigationBar: ValueListenableBuilder(
         valueListenable: _currentIndex,

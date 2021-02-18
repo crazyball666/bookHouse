@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
 
 class LoginPage extends StatefulWidget {
-  static showLoginPage() {
-    CommonUtil.navigatorPop(LoginPage());
+  static showLoginPage() async {
+    await CommonUtil.navigatorPop(LoginPage());
   }
 
   @override
@@ -34,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
         onPointerDown: (_) {
           FocusScope.of(context).requestFocus(FocusNode());
         },
+        behavior: HitTestBehavior.translucent,
         child: AnimatedContainer(
           duration: Duration(milliseconds: 300),
           color: Color(0xFFFFCC55),

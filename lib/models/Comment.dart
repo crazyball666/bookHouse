@@ -1,4 +1,5 @@
 import 'package:bookApp/models/User.dart';
+import 'package:bookApp/util/CommonUtil.dart';
 import 'package:intl/intl.dart';
 
 /// 评论模型
@@ -23,7 +24,7 @@ class Comment {
         createTime =
             DateFormat('yyyy-MM-dd HH:mm:ss').parse(map["create_time"]);
       }
-      userAvatar = map["user_avatar"];
+      userAvatar = "${CommonUtil.imageHost}${map["user_avatar"]}";
       userName = map["user_name"];
     } catch (err) {
       print("Create Comment Error: $err");

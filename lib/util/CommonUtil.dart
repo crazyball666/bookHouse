@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// 通用工具类
 class CommonUtil {
   static BuildContext rootContext;
+
+  // ignore: close_sinks
+  static StreamController logoutBroadcast = StreamController.broadcast();
 
   /// MaterialApp的Navigator key,用于路由跳转
   static final rootNavKey = new GlobalKey<NavigatorState>();
@@ -37,5 +42,7 @@ class CommonUtil {
   }
 
   /// 基本域名
-  static String baseHost = "http://192.168.100.36:8080";
+  static String baseHost = "http://9de3cc3a7701.ngrok.io";
+
+  static String imageHost = "$baseHost/cbh_file";
 }

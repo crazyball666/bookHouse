@@ -1,4 +1,5 @@
 import 'package:bookApp/models/Category.dart';
+import 'package:bookApp/util/CommonUtil.dart';
 
 /// 书籍模型
 class Book {
@@ -21,6 +22,8 @@ class Book {
   bool isBorrow;
   BookCategory firstCategory;
   BookCategory secondCategory;
+  String firstCate;
+  String secondCate;
 
   Book.initWithMap(Map map) {
     try {
@@ -39,10 +42,12 @@ class Book {
       readCount = map["readCount"] ?? 0;
       collectCount = map["collectCount"] ?? 0;
       scoreAvg = map["scoreAvg"] ?? 0.0;
-      isCollect = map["is_collect"] == 1;
-      isBorrow = map["is_borrow"] == 1;
+      isCollect = (map["is_collect"] ?? 0) > 0;
+      isBorrow = (map["is_borrow"] ?? 0) > 0;
       firstCategory = BookCategory.initWithMap(map["firstCate"] ?? {});
       secondCategory = BookCategory.initWithMap(map["secondCate"] ?? {});
+      firstCate = map["first_cate"];
+      secondCate = map["second_cate"];
     } catch (err) {
       print("Create Book Error: $err");
     }

@@ -1,4 +1,5 @@
 import 'package:bookApp/components/BookListView.dart';
+import 'package:bookApp/components/LoadingView.dart';
 import 'package:bookApp/models/Book.dart';
 import 'package:bookApp/models/Category.dart';
 import 'package:bookApp/models/ListResult.dart';
@@ -36,10 +37,27 @@ class _BookListPageState extends State<BookListPage>
   int _selectedTabIndex = 0;
 
   _onTapTabItem(int index, BookListSort sort) {
+    if(_selectedTabIndex == index && index == 0) return;
     _selectedTabIndex = index;
+    String column = "";
+    String order = "";
+    if(index == 1){
+      column = "score";
+    }else if(index == 2){
+      column = "collect_count";
+    }
+    if(sort == BookListSort.BookListSortDes){
+      order = "desc";
+    }else if(sort == BookListSort.BookListSortAsc){
+      order = "asc";
+    }
+    _fetchData(column: column,order: order);
   }
 
-  _fetchData() async {
+  _fetchData({
+    String column = "",
+    String order = "",
+  }) async {
     _loading.value = true;
     try {
       ListResult<Book> booksResult = await ApiRequest().getBookList(
@@ -50,6 +68,8 @@ class _BookListPageState extends State<BookListPage>
         categoryId: widget.type == BookListPageType.BookListPageTypeCategory
             ? widget.bookCategory.id
             : 0,
+        column: column,
+        order: order,
       );
       _bookList.addAll(booksResult.data);
     } catch (err) {
@@ -70,40 +90,53 @@ class _BookListPageState extends State<BookListPage>
     print(_bookList);
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(widget.type == BookListPageType.BookListPageTypeSearch
             ? widget.searchText
             : widget.bookCategory.name),
       ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 30.w),
-        child: Column(
-          children: [
-            BookListTab(
-              controller: _tabController,
-              onTapItem: _onTapTabItem,
+      body: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 30.w),
+            child: Column(
+              children: [
+                BookListTab(
+                  controller: _tabController,
+                  onTapItem: _onTapTabItem,
+                ),
+                Expanded(
+                  child: ValueListenableBuilder(
+                    valueListenable: _loading,
+                    builder: (context, snapshot, child) {
+                      return AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        child: Container(
+                          key: ValueKey<bool>(_loading.value),
+                          child: _loading.value
+                              ? Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              : BookListView(
+                                  books: _bookList,
+                                ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: _loading,
-                builder: (context, snapshot, child) {
-                  return AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
-                    child: Container(
-                      key: ValueKey<bool>(_loading.value),
-                      child: _loading.value
-                          ? Center(
-                              child: CircularProgressIndicator(),
-                            )
-                          : BookListView(
-                              books: _bookList,
-                            ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+          ValueListenableBuilder(
+              valueListenable: _loading,
+              builder: (context, snapshot, child) {
+                return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: _loading.value ? LoadingView() : Container(),
+                );
+              })
+        ],
       ),
     );
   }

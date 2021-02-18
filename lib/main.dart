@@ -1,11 +1,20 @@
 import 'package:bookApp/pages/rootPage.dart';
+import 'package:bookApp/provider/UserProvider.dart';
 import 'package:bookApp/util/CommonUtil.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<UserProvider>(create: (_) => UserProvider()),
+      ],
+      child: App(),
+    ),
+  );
   if (Platform.isAndroid) {
     //沉浸式状态栏
     SystemUiOverlayStyle systemUiOverlayStyle =
@@ -16,7 +25,7 @@ void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
-class MyApp extends StatelessWidget {
+class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

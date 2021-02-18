@@ -1,5 +1,3 @@
-import 'package:bookApp/components/BookListView.dart';
-import 'package:bookApp/models/Book.dart';
 import 'package:bookApp/models/CarouselItem.dart';
 import 'package:bookApp/models/Category.dart';
 import 'package:bookApp/network/ApiRequest.dart';
@@ -11,7 +9,6 @@ import 'package:bookApp/pages/Index/RecommendBookListView.dart';
 import 'package:bookApp/pages/Index/SearchBar.dart';
 import 'package:bookApp/util/CommonUtil.dart';
 import 'package:flutter/material.dart';
-import 'package:bookApp/util/ScreenUtil.dart';
 
 class IndexPage extends StatefulWidget {
   @override
@@ -32,7 +29,7 @@ class IndexPageState extends State<IndexPage>
   /// 搜索
   void _onSearch(String text) {
     print(text);
-    if(text.isEmpty){
+    if (text.isEmpty) {
       return;
     }
     CommonUtil.navigatorPush(BookListPage(
@@ -86,6 +83,7 @@ class IndexPageState extends State<IndexPage>
 
   @override
   Widget build(BuildContext context) {
+    print("-- index page build --");
     return Listener(
       onPointerDown: (event) {
         if (_searchFocusNode.hasFocus) {
@@ -105,7 +103,7 @@ class IndexPageState extends State<IndexPage>
                 valueListenable: _carouselItemList,
                 builder: (context, snapshot, child) {
                   return BannerView(
-                    // carouselData: _carouselItemList.value,
+                    carouselData: _carouselItemList.value,
                   );
                 },
               ),

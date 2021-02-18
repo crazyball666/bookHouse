@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
 
 class OverviewView extends StatelessWidget {
-  final List<_OverviewItem> items = [
-    _OverviewItem(name: "当前借阅", data: 123, unit: "本"),
-    _OverviewItem(name: "阅读数量", data: 123, unit: "本"),
-    _OverviewItem(name: "违规记录", data: 12, unit: "次"),
-  ];
+  final List<OverviewItem> items;
+
+  OverviewView({this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -37,36 +35,39 @@ class OverviewView extends StatelessWidget {
                 children: items
                     .map(
                       (item) => Flexible(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              item.name,
-                              style: TextStyle(
-                                fontSize: 28.sp,
-                                color: Color(0xff666666),
+                        child: GestureDetector(
+                          onTap: item.onTap,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                item.name,
+                                style: TextStyle(
+                                  fontSize: 28.sp,
+                                  color: Color(0xff666666),
+                                ),
                               ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  item.data.toString(),
-                                  style: TextStyle(
-                                    fontSize: 56.sp,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    item.data.toString(),
+                                    style: TextStyle(
+                                      fontSize: 56.sp,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  item.unit,
-                                  style: TextStyle(
-                                    fontSize: 24.sp,
-                                    color: Color(0xff666666),
+                                  Text(
+                                    item.unit,
+                                    style: TextStyle(
+                                      fontSize: 24.sp,
+                                      color: Color(0xff666666),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                          ],
+                                ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     )
@@ -80,14 +81,16 @@ class OverviewView extends StatelessWidget {
   }
 }
 
-class _OverviewItem {
+class OverviewItem {
   String name;
   int data;
   String unit;
+  Function onTap;
 
-  _OverviewItem({
+  OverviewItem({
     this.name,
     this.data,
     this.unit,
+    this.onTap,
   });
 }

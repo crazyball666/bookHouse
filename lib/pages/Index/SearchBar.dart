@@ -81,7 +81,10 @@ class _SearchBarState extends State<SearchBar> {
                       child: Text(
                         "搜索",
                         style: TextStyle(
-                            fontSize: 30.sp, fontWeight: FontWeight.bold),
+                          fontSize: 30.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),

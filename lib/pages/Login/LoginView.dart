@@ -1,8 +1,12 @@
 import 'package:bookApp/components/Toast.dart';
+import 'package:bookApp/models/User.dart';
 import 'package:bookApp/network/ApiRequest.dart';
+import 'package:bookApp/provider/UserProvider.dart';
 import 'package:bookApp/util/CommonUtil.dart';
+import 'package:bookApp/util/PreferencesUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
+import 'package:provider/provider.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -16,18 +20,29 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController _passwordController = TextEditingController();
 
   _onTapLogin() async {
-    setState(() {
-      _loadingLogin = true;
-    });
     String account = _accountController.text;
     String password = _passwordController.text;
     if (account.isEmpty || password.isEmpty) {
       CBToast.showErrorToast(context, "账号密码不能为空");
       return;
     }
+    setState(() {
+      _loadingLogin = true;
+    });
     try {
-      await ApiRequest().login(account, password);
-    } catch (err) {}
+      User user = await ApiRequest().login(account, password);
+      if (user.id != null && user.id > 0) {
+        CBToast.showSuccessToast(context, "登录成功");
+        await PreferencesUtil.saveLoginInfo(account, password);
+        await Provider.of<UserProvider>(context, listen: false).loginUser(user);
+        Navigator.pop(context);
+      } else {
+        CBToast.showErrorToast(context, "登录失败");
+      }
+    } catch (err) {
+      print(err);
+      CBToast.showErrorToast(context, "登录失败");
+    }
     setState(() {
       _loadingLogin = false;
     });

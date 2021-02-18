@@ -1,7 +1,11 @@
 import 'package:bookApp/components/Toast.dart';
+import 'package:bookApp/models/User.dart';
 import 'package:bookApp/network/ApiRequest.dart';
+import 'package:bookApp/provider/UserProvider.dart';
+import 'package:bookApp/util/PreferencesUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
+import 'package:provider/provider.dart';
 
 class RegisterView extends StatefulWidget {
   @override
@@ -16,9 +20,6 @@ class _RegisterViewState extends State<RegisterView> {
   TextEditingController _confirmPasswordController = TextEditingController();
 
   _onTapRegister() async {
-    setState(() {
-      _loading = true;
-    });
     String account = _accountController.text;
     String password = _passwordController.text;
     String confirmPass = _confirmPasswordController.text;
@@ -30,9 +31,23 @@ class _RegisterViewState extends State<RegisterView> {
       CBToast.showErrorToast(context, "两次密码不一致");
       return;
     }
+    setState(() {
+      _loading = true;
+    });
     try {
-      await ApiRequest().register(account, password);
-    } catch (err) {}
+      User user = await ApiRequest().register(account, password);
+      if (user.id != null && user.id > 0) {
+        CBToast.showSuccessToast(context, "登录成功");
+        await PreferencesUtil.saveLoginInfo(account, password);
+        await Provider.of<UserProvider>(context, listen: false).loginUser(user);
+        Navigator.pop(context);
+      } else {
+        CBToast.showErrorToast(context, "登录失败");
+      }
+    } catch (err) {
+      print(err);
+      CBToast.showErrorToast(context, "注册失败");
+    }
     setState(() {
       _loading = false;
     });
