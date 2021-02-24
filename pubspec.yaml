@@ -32,6 +32,9 @@ dependencies:
   modal_bottom_sheet: ^1.0.0+1
   flutter_swiper: ^1.1.6
   qr_flutter: ^3.2.0
+#  barcode_scanner: ^1.1.0
+  r_scan: ^0.1.5
+  permission_handler: ^5.1.0+2
 
 dev_dependencies:
   flutter_test:

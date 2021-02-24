@@ -20,12 +20,7 @@ class AppRootPage extends StatefulWidget {
 }
 
 class AppRootPageState extends State<AppRootPage> {
-  List<Widget> _pages = [
-    IndexPage(),
-    CategoryPage(),
-    MyReadPage(),
-    MinePage(),
-  ];
+  List<Widget> _pages = [];
   PageController _pageController = PageController();
   bool _hasInit = false;
   ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
@@ -74,8 +69,19 @@ class AppRootPageState extends State<AppRootPage> {
     super.initState();
     CommonUtil.rootContext = context;
     _logoutSub = CommonUtil.logoutBroadcast.stream.listen(_onLogout);
+
+    _pages = [
+      IndexPage(
+        onTapAllCategory: () => _onTapBottomNavigationItem(1),
+      ),
+      CategoryPage(),
+      MyReadPage(),
+      MinePage(),
+    ];
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ScreenUtil.init(context, designSize: Size(750, 1334));
+      await ApiRequest().getApiHost();
       await _getLoginStatus();
       setState(() {
         _hasInit = true;

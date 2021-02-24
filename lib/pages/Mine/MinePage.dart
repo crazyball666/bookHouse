@@ -1,11 +1,14 @@
 import 'package:bookApp/components/CacheImageView.dart';
 import 'package:bookApp/components/Toast.dart';
+import 'package:bookApp/models/QRCodeData.dart';
 import 'package:bookApp/models/User.dart';
 import 'package:bookApp/pages/BookCollect/BookCollectPage.dart';
-import 'package:bookApp/pages/BookComment/BookCommentPage.dart';
 import 'package:bookApp/pages/BorrowCarPage/BorrowCarPage.dart';
 import 'package:bookApp/pages/BorrowRulePage/BorrowRulePage.dart';
 import 'package:bookApp/pages/BrowsingHistory/BrowsingHistoryPage.dart';
+import 'package:bookApp/pages/ReturnedBookList/ReturnedBookListPage.dart';
+import 'package:bookApp/pages/ScanCamera/ScanCameraPage.dart';
+import 'package:bookApp/pages/ScanResult/ScanResultPage.dart';
 import 'package:bookApp/provider/UserProvider.dart';
 import 'package:bookApp/util/CommonUtil.dart';
 import 'package:bookApp/util/PreferencesUtil.dart';
@@ -51,6 +54,25 @@ class _MinePageState extends State<MinePage>
         )),
   ];
 
+  List<_MenuItem> _managerMenuItems = [
+    _MenuItem(
+      name: "图书借阅",
+      icon: Icon(
+        Icons.book_online,
+        size: 64.w,
+        color: Colors.blue,
+      ),
+    ),
+    _MenuItem(
+      name: "图书归还",
+      icon: Icon(
+        Icons.book_outlined,
+        size: 64.w,
+        color: Colors.blue,
+      ),
+    ),
+  ];
+
   /// 登出
   _logout() async {
     await PreferencesUtil.removeLoginInfo();
@@ -72,13 +94,33 @@ class _MinePageState extends State<MinePage>
     if (index == 0) {
       page = BorrowCarPage();
     } else if (index == 1) {
-      page = BookCommentPage();
+      page = ReturnedBookListPage();
     } else if (index == 2) {
       page = BookCollectPage();
     } else {
       page = BrowsingHistoryPage();
     }
     CommonUtil.navigatorPush(page);
+  }
+
+  /// 选择工作菜单
+  _onTapManagerMenuItem(int index) async {
+    String data = await CommonUtil.navigatorPush(ScanCameraPage());
+    if (data == null) return;
+    try {
+      QRCodeData qrCodeData = QRCodeData.initWithJsonString(data);
+      if (qrCodeData == null ||
+          qrCodeData.type == null ||
+          (index == 0 && qrCodeData.type != QRCodeType.Borrow) ||
+          (index == 1 && qrCodeData.type != QRCodeType.Return)) {
+        throw Exception("二维码错误");
+      }
+      CommonUtil.navigatorPush(ScanResultPage(
+        result: qrCodeData,
+      ));
+    } catch (err) {
+      CBToast.showErrorToast(context, "二维码错误");
+    }
   }
 
   @override
@@ -192,8 +234,7 @@ class _MinePageState extends State<MinePage>
                                           fontSize: 22.sp,
                                         ),
                                       ),
-                                      Text(
-                                          "${user?.auth == 1 ? "正常" : "违规"}"),
+                                      Text("${user?.auth == 1 ? "正常" : "违规"}"),
                                     ],
                                   ),
                                 ],
@@ -292,7 +333,47 @@ class _MinePageState extends State<MinePage>
                 ),
               ],
             ),
-          )
+          ),
+          (user?.managerId ?? 0) > 0
+              ? Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(30.w),
+                        child: Text(
+                          "工作应用",
+                          style: TextStyle(
+                            fontSize: 32.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        itemCount: _managerMenuItems.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: _managerMenuItems.length,
+                        ),
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () => _onTapManagerMenuItem(index),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 10.w),
+                                  child: _managerMenuItems[index].icon,
+                                ),
+                                Text(_managerMenuItems[index].name),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                )
+              : Container(),
         ],
       ),
     );

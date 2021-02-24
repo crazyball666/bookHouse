@@ -42,7 +42,7 @@ class CommonUtil {
   }
 
   /// 基本域名
-  static String baseHost = "http://9de3cc3a7701.ngrok.io";
+  static String baseHost = "http://192.168.100.41:8079";
 
   static String imageHost = "$baseHost/cbh_file";
 }

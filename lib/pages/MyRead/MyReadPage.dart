@@ -33,7 +33,7 @@ class _MyReadPageState extends State<MyReadPage>
   List<Map> _violationBooks = [];
 
   /// 获取数据
-  _fetchData() async {
+  Future _fetchData() async {
     setState(() {
       _loading = true;
     });
@@ -76,10 +76,13 @@ class _MyReadPageState extends State<MyReadPage>
     });
   }
 
-  _goCurrentBorrowPage() {
-    CommonUtil.navigatorPush(CurrentBorrowPage(
+  _goCurrentBorrowPage() async {
+    var result = await CommonUtil.navigatorPush(CurrentBorrowPage(
       books: _currentBooks,
     ));
+    if (result == true) {
+      _fetchData();
+    }
   }
 
   _goHistoryBorrowPage() {
@@ -110,45 +113,48 @@ class _MyReadPageState extends State<MyReadPage>
       ),
       body: Stack(
         children: [
-          ListView(
-            children: [
-              Container(
-                color: Colors.red,
-                margin: EdgeInsets.only(bottom: 160.w),
-                child: OverviewView(
-                  items: [
-                    OverviewItem(
-                      name: "当前借阅",
-                      data: _currentBooks.length,
-                      unit: "本",
-                      onTap: _goCurrentBorrowPage,
-                    ),
-                    OverviewItem(
-                      name: "阅读数量",
-                      data: _historyBooks.length,
-                      unit: "本",
-                      onTap: _goHistoryBorrowPage,
-                    ),
-                    OverviewItem(
-                      name: "违规记录",
-                      data: _violationBooks.length,
-                      unit: "次",
-                      onTap: _goViolationBorrowPage,
-                    ),
-                  ],
+          RefreshIndicator(
+            child: ListView(
+              children: [
+                Container(
+                  color: Colors.red,
+                  margin: EdgeInsets.only(bottom: 160.w),
+                  child: OverviewView(
+                    items: [
+                      OverviewItem(
+                        name: "当前借阅",
+                        data: _currentBooks.length,
+                        unit: "本",
+                        onTap: _goCurrentBorrowPage,
+                      ),
+                      OverviewItem(
+                        name: "阅读数量",
+                        data: _historyBooks.length,
+                        unit: "本",
+                        onTap: _goHistoryBorrowPage,
+                      ),
+                      OverviewItem(
+                        name: "违规记录",
+                        data: _violationBooks.length,
+                        unit: "次",
+                        onTap: _goViolationBorrowPage,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              BorrowBoolListView(
-                title: "当前借阅",
-                books: _currentBooks.sublist(0, min(3, _currentBooks.length)),
-                onTap: _goCurrentBorrowPage,
-              ),
-              BorrowBoolListView(
-                title: "历史借阅",
-                books: _historyBooks.sublist(0, min(3, _historyBooks.length)),
-                onTap: _goHistoryBorrowPage,
-              ),
-            ],
+                BorrowBoolListView(
+                  title: "当前借阅",
+                  books: _currentBooks.sublist(0, min(3, _currentBooks.length)),
+                  onTap: _goCurrentBorrowPage,
+                ),
+                BorrowBoolListView(
+                  title: "历史借阅",
+                  books: _historyBooks.sublist(0, min(3, _historyBooks.length)),
+                  onTap: _goHistoryBorrowPage,
+                ),
+              ],
+            ),
+            onRefresh: _fetchData,
           ),
           AnimatedSwitcher(
             duration: Duration(milliseconds: 300),

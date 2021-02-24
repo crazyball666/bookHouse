@@ -1,10 +1,16 @@
+import 'dart:math';
+
 import 'package:bookApp/components/CacheImageView.dart';
 import 'package:bookApp/components/LoadingView.dart';
+import 'package:bookApp/components/Toast.dart';
 import 'package:bookApp/models/BorrowBookItem.dart';
+import 'package:bookApp/network/ApiRequest.dart';
 import 'package:bookApp/pages/BorrowAndReturnBook/BorrowAndReturnBookPage.dart';
+import 'package:bookApp/provider/UserProvider.dart';
 import 'package:bookApp/util/CommonUtil.dart';
 import 'package:flutter/material.dart';
 import 'package:bookApp/util/ScreenUtil.dart';
+import 'package:provider/provider.dart';
 
 class CurrentBorrowPage extends StatefulWidget {
   final List<Map> books;
@@ -27,7 +33,29 @@ class _CurrentBorrowPageState extends State<CurrentBorrowPage> {
   }
 
   /// 续借
-  _renew() async {}
+  _renew() async {
+    setState(() {
+      _loading = true;
+    });
+    try {
+      int uid = Provider.of<UserProvider>(context, listen: false).user.id;
+      await ApiRequest().renewBooks(
+        uid: uid,
+        recordIds: widget.books
+            .where((e) => e["selected"] == true)
+            .map<int>((e) => e["id"])
+            .toList(),
+      );
+      CBToast.showSuccessToast(context, "续借成功");
+      Navigator.of(context).pop(true);
+    } catch (err) {
+      CBToast.showErrorToast(context, "续借失败");
+      print("[Error] $err");
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
 
   /// 归还
   _return() async {
@@ -231,8 +259,15 @@ class _CurrentBorrowPageState extends State<CurrentBorrowPage> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     RaisedButton(
-                      onPressed: _renew,
-                      child: Text("续借"),
+                      onPressed: widget.books
+                              .where((e) => e["selected"] == true)
+                              .isNotEmpty
+                          ? _renew
+                          : null,
+                      child: Text(
+                        "续借",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       color: Colors.blue,
                       textColor: Colors.white,
                     ),

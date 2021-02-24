@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bookApp/models/Book.dart';
 import 'package:bookApp/models/BorrowCarBook.dart';
 import 'package:bookApp/models/BorrowOverviewInfo.dart';
@@ -49,6 +51,19 @@ class ApiRequest extends Request {
     dio.interceptors.add(ApiInterceptor());
   }
 
+  getApiHost() async {
+    try {
+      Response response =
+          await dio.get("https://static.crazyball.xyz/bookApp/config.json");
+      Map data = response.data;
+      if (data["host"] != null) {
+        CommonUtil.baseHost = data["host"];
+      }
+    } catch (err) {
+      print("-----------$err");
+    }
+  }
+
   /// 获取Banner数据
   Future<List<CarouselItem>> getCarouselItemList() async {
     Response response =
@@ -98,11 +113,12 @@ class ApiRequest extends Request {
     String column = "",
     String order = "",
   }) async {
+    int limit = 999;
     Response response = await dio.get(
       "${CommonUtil.baseHost}/city_book/api/book/list",
       queryParameters: {
-        "offset": (page - 1) * 10,
-        "limit": 10,
+        "offset": (page - 1) * limit,
+        "limit": limit,
         "content": searchText,
         "second_category_id": categoryId,
         "column": column,
@@ -112,7 +128,7 @@ class ApiRequest extends Request {
     ListResult<Book> listResult = ListResult<Book>();
     listResult.currentPage = page;
     listResult.total = response.data["total"];
-    listResult.totalPage = (listResult.total / 10).ceil();
+    listResult.totalPage = (listResult.total / limit).ceil();
     List data = response.data["data"];
     listResult.data = data.map<Book>((e) => Book.initWithMap(e)).toList();
     return listResult;
@@ -133,18 +149,19 @@ class ApiRequest extends Request {
 
   /// 获取书评论列表
   Future<ListResult<Comment>> getCommentList(int bookId, int page) async {
+    int limit = 999;
     Response response = await dio.get(
       "${CommonUtil.baseHost}/city_book/api/comment/list",
       queryParameters: {
-        "offset": (page - 1) * 10,
-        "limit": 10,
+        "offset": (page - 1) * limit,
+        "limit": limit,
         "book_id": bookId,
       },
     );
     ListResult<Comment> listResult = ListResult<Comment>();
     listResult.currentPage = page;
     listResult.total = response.data["total"];
-    listResult.totalPage = (listResult.total / 10).ceil();
+    listResult.totalPage = (listResult.total / limit).ceil();
     List data = response.data["data"];
     listResult.data = data.map<Comment>((e) => Comment.initWithMap(e)).toList();
     return listResult;
@@ -305,6 +322,95 @@ class ApiRequest extends Request {
     });
     if (response.data["stateCode"] != 200) {
       throw Exception("取消收藏失败");
+    }
+  }
+
+  /// 可评价图书列表
+  Future getReturnedBookList() async {
+    int uid = Provider.of<UserProvider>(CommonUtil.rootContext, listen: false)
+        .user
+        ?.id;
+    Response response = await dio.get(
+        "${CommonUtil.baseHost}/city_book/api/borrow_record/returned",
+        queryParameters: {
+          "user_id": uid,
+        });
+    List data = response.data;
+    return data.map<Map>((e) => e).toList();
+  }
+
+  /// 评价
+  Future addComment({
+    int bookId,
+    int score,
+    String content,
+  }) async {
+    int uid = Provider.of<UserProvider>(CommonUtil.rootContext, listen: false)
+        .user
+        ?.id;
+    Response response = await dio.post(
+      "${CommonUtil.baseHost}/city_book/api/comment",
+      data: {
+        "user_id": uid,
+        "book_id": bookId,
+        "score": score,
+        "content": content,
+      },
+    );
+    if (response.data["stateCode"] != 200) {
+      throw Exception("添加失败");
+    }
+  }
+
+  /// 批量借阅
+  borrowBooks({
+    int uid,
+    List<int> bookIds,
+  }) async {
+    Response response = await dio.post(
+      "${CommonUtil.baseHost}/city_book/api/borrow_record/addM",
+      data: {
+        "user_id": uid,
+        "ids": bookIds,
+      },
+    );
+    if (response.data["stateCode"] != 200) {
+      throw Exception("失败");
+    }
+  }
+
+  /// 批量归还
+  returnBooks({
+    int uid,
+    List<int> recordIds,
+  }) async {
+    Response response = await dio.put(
+      "${CommonUtil.baseHost}/city_book/api/borrow_record/returnM",
+      data: {
+        "user_id": uid,
+        "ids": recordIds,
+      },
+    );
+    if (response.data["stateCode"] != 200) {
+      throw Exception("失败");
+    }
+  }
+
+  /// 批量续借
+  renewBooks({
+    int uid,
+    List<int> recordIds,
+  }) async {
+    print("$uid,$recordIds");
+    Response response = await dio.put(
+      "${CommonUtil.baseHost}/city_book/api/borrow_record/renew",
+      data: {
+        "user_id": uid,
+        "ids": recordIds,
+      },
+    );
+    if (response.data["stateCode"] != 200) {
+      throw Exception("失败");
     }
   }
 }

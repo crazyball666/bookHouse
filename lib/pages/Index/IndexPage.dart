@@ -11,6 +11,10 @@ import 'package:bookApp/util/CommonUtil.dart';
 import 'package:flutter/material.dart';
 
 class IndexPage extends StatefulWidget {
+  final Function onTapAllCategory;
+
+  IndexPage({this.onTapAllCategory});
+
   @override
   State<StatefulWidget> createState() => IndexPageState();
 }
@@ -111,6 +115,7 @@ class IndexPageState extends State<IndexPage>
                 valueListenable: _categoryList,
                 builder: (context, snapshot, child) {
                   return CategoryView(
+                    onTapAllCategory: widget.onTapAllCategory,
                     categoryList: _categoryList.value,
                   );
                 },

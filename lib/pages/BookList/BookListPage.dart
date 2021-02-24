@@ -37,21 +37,21 @@ class _BookListPageState extends State<BookListPage>
   int _selectedTabIndex = 0;
 
   _onTapTabItem(int index, BookListSort sort) {
-    if(_selectedTabIndex == index && index == 0) return;
+    if (_selectedTabIndex == index && index == 0) return;
     _selectedTabIndex = index;
     String column = "";
     String order = "";
-    if(index == 1){
+    if (index == 1) {
       column = "score";
-    }else if(index == 2){
+    } else if (index == 2) {
       column = "collect_count";
     }
-    if(sort == BookListSort.BookListSortDes){
+    if (sort == BookListSort.BookListSortDes) {
       order = "desc";
-    }else if(sort == BookListSort.BookListSortAsc){
+    } else if (sort == BookListSort.BookListSortAsc) {
       order = "asc";
     }
-    _fetchData(column: column,order: order);
+    _fetchData(column: column, order: order);
   }
 
   _fetchData({
