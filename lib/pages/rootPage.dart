@@ -83,6 +83,7 @@ class AppRootPageState extends State<AppRootPage> {
       ScreenUtil.init(context, designSize: Size(750, 1334));
       await ApiRequest().getApiHost();
       await _getLoginStatus();
+      await Future.delayed(Duration(milliseconds: 200));
       setState(() {
         _hasInit = true;
       });
