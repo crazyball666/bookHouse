@@ -211,7 +211,7 @@ class _BorrowCarPageState extends State<BorrowCarPage> {
                       RaisedButton(
                         color: Colors.blue,
                         textColor: Colors.white,
-                        onPressed: _goToBorrow,
+                        onPressed: _books.isEmpty ? null : _goToBorrow,
                         child: Text("生成借阅码"),
                       ),
                     ],
