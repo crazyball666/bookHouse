@@ -152,6 +152,10 @@ class _BookDetailPageState extends State<BookDetailPage> {
     if (!await _checkLoginStatus()) {
       return;
     }
+    if (Provider.of<UserProvider>(context, listen: false).user.auth != 1) {
+      CBToast.showErrorToast(context, "该账号不能借阅");
+      return;
+    }
     DateTime now = DateTime.now();
     CommonUtil.navigatorPush(
       BorrowAndReturnBookPage(
